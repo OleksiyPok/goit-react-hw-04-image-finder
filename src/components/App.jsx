@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -10,70 +10,50 @@ import Loader from 'components/Loader';
 
 import { AppContainer } from './App.styled';
 
-class App extends Component {
-  state = {
-    searchQuery: '',
-    isLoading: false,
-    currentPage: 1,
-    totalPages: 0,
-    gallery: [],
-  };
+const App = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [gallery, setGallery] = useState([]);
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (
-      prevState.searchQuery !== this.state.searchQuery ||
-      prevState.currentPage !== this.state.currentPage
-    ) {
-      const { searchQuery, currentPage } = this.state;
-      this.doRequest(searchQuery, currentPage);
-    }
-  }
+  useEffect(() => {
+    doRequest(searchQuery, currentPage);
+  }, [searchQuery, currentPage]);
 
-  handleOnSearch = currentSearchQuery => {
-    if (currentSearchQuery !== this.state.searchQuery) {
-      this.setState({
-        searchQuery: currentSearchQuery,
-        gallery: [],
-        currentPage: 1,
-      });
+  const handleOnSearch = currentSearchQuery => {
+    if (currentSearchQuery !== searchQuery) {
+      setSearchQuery(currentSearchQuery);
+      setGallery([]);
+      setCurrentPage(1);
     } else if (currentSearchQuery === '') {
       toast.error(`Enter a search string`);
     } else {
     }
   };
 
-  handleLoadMore = () => {
-    const { currentPage, totalPages } = this.state;
-
+  const handleLoadMore = () => {
     if (currentPage < totalPages) {
-      this.setState(({ currentPage }) => ({
-        currentPage: currentPage + 1,
-      }));
+      setCurrentPage(currentPage + 1);
     }
   };
 
-  async doRequest(searchQuery, currentPage) {
+  const doRequest = async (searchQuery, currentPage) => {
     if (!searchQuery) {
-      toast.error(`Enter a search string!`);
       return;
     }
 
-    if (currentPage === this.state.totalPages) {
+    if (currentPage === totalPages) {
       toast.info(`This is the last page`);
     }
 
-    this.setState({
-      isLoading: true,
-    });
+    setIsLoading(true);
 
     try {
       const responseData = await Api.getData(searchQuery, currentPage);
-
       const newGallery = responseData.hits;
 
-      this.setState(prevState => ({
-        gallery: [...prevState.gallery, ...newGallery],
-      }));
+      setGallery([...gallery, ...newGallery]);
 
       if (currentPage === 1) {
         const imagesPerPage = newGallery.length;
@@ -86,45 +66,36 @@ class App extends Component {
           toast.success(`Found ${totalImages} images matching your request`);
         }
 
-        this.setState({
-          totalPages: totalPages,
-        });
+        setTotalPages(totalPages);
       }
     } catch (error) {
       return console.log(error.message);
     } finally {
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
     }
-  }
+  };
 
-  render() {
-    const { isLoading, gallery, totalPages, currentPage } = this.state;
+  const isShowGallery = Boolean(gallery.length);
+  const isShowButton = isShowGallery && currentPage !== totalPages;
 
-    const isShowGallery = Boolean(gallery.length);
-    const isShowButton = isShowGallery && currentPage !== totalPages;
+  const toastParams = {
+    position: 'top-left',
+    autoClose: 2000,
+    hideProgressBar: true,
+    newestOnTop: false,
+    closeOnClick: true,
+    pauseOnHover: true,
+  };
 
-    const toastParams = {
-      position: 'top-left',
-      autoClose: 2000,
-      hideProgressBar: true,
-      newestOnTop: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-    };
-
-    return (
-      <AppContainer>
-        <Searchbar onClickSearch={this.handleOnSearch} />
-        {isShowGallery && <ImageGallery gallery={gallery} />}
-        {isShowButton && <Button loadMore={this.handleLoadMore} />}
-        {isLoading && <Loader />}
-
-        <ToastContainer {...toastParams} />
-      </AppContainer>
-    );
-  }
-}
+  return (
+    <AppContainer>
+      <Searchbar onClickSearch={handleOnSearch} />
+      {isShowGallery && <ImageGallery gallery={gallery} />}
+      {isShowButton && <Button loadMore={handleLoadMore} />}
+      {isLoading && <Loader />}
+      <ToastContainer {...toastParams} />
+    </AppContainer>
+  );
+};
 
 export default App;

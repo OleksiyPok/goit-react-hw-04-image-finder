@@ -18,10 +18,6 @@ const Searchbar = ({ onClickSearch }) => {
     onClickSearch(searchQuery);
   };
 
-  //   const handleChange = () => {
-  //   this.state.
-  // }
-
   return (
     <Header className="searchbar">
       <SearchForm className="form" onSubmit={handleSubmit}>
