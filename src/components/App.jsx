@@ -18,7 +18,7 @@ const App = () => {
   const [gallery, setGallery] = useState([]);
 
   useEffect(() => {
-    doRequest(searchQuery, currentPage);
+    doRequest();
   }, [searchQuery, currentPage]);
 
   const handleOnSearch = currentSearchQuery => {
@@ -38,7 +38,7 @@ const App = () => {
     }
   };
 
-  const doRequest = async (searchQuery, currentPage) => {
+  const doRequest = async () => {
     if (!searchQuery) {
       return;
     }
