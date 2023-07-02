@@ -18,9 +18,9 @@ const App = () => {
   const [gallery, setGallery] = useState([]);
 
   useEffect(() => {
-    // if (currentPage === totalPages) {
-    //   toast.info(`This is the last page`);
-    // }
+    if (currentPage === totalPages) {
+      toast.info(`This is the last page`);
+    }
 
     if (searchQuery) {
       const doRequest = async () => {
