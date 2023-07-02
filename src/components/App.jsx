@@ -18,45 +18,45 @@ const App = () => {
   const [gallery, setGallery] = useState([]);
 
   useEffect(() => {
-    const doRequest = async () => {
-      if (!searchQuery) {
-        return;
-      }
+    // if (currentPage === totalPages) {
+    //   toast.info(`This is the last page`);
+    // }
 
-      if (currentPage === totalPages) {
-        toast.info(`This is the last page`);
-      }
+    if (searchQuery) {
+      const doRequest = async () => {
+        setIsLoading(true);
 
-      setIsLoading(true);
+        try {
+          const responseData = await Api.getData(searchQuery, currentPage);
+          const newGallery = responseData.hits;
 
-      try {
-        const responseData = await Api.getData(searchQuery, currentPage);
-        const newGallery = responseData.hits;
+          setGallery([...gallery, ...newGallery]);
 
-        setGallery([...gallery, ...newGallery]);
+          if (currentPage === 1) {
+            const imagesPerPage = newGallery.length;
+            const totalImages = responseData.total;
+            const totalPages = Math.ceil(totalImages / imagesPerPage);
 
-        if (currentPage === 1) {
-          const imagesPerPage = newGallery.length;
-          const totalImages = responseData.total;
-          const totalPages = Math.ceil(totalImages / imagesPerPage);
+            if (newGallery.length === 0) {
+              toast.error(`No images found for your request!`);
+            } else {
+              toast.success(
+                `Found ${totalImages} images matching your request`
+              );
+            }
 
-          if (newGallery.length === 0) {
-            toast.error(`No images found for your request!`);
-          } else {
-            toast.success(`Found ${totalImages} images matching your request`);
+            setTotalPages(totalPages);
           }
-
-          setTotalPages(totalPages);
+        } catch (error) {
+          return console.log(error.message);
+        } finally {
+          setIsLoading(false);
         }
-      } catch (error) {
-        return console.log(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      };
 
-    doRequest();
-  }, [searchQuery, currentPage, gallery, totalPages]);
+      doRequest();
+    }
+  }, [searchQuery, currentPage]);
 
   const handleOnSearch = currentSearchQuery => {
     if (currentSearchQuery !== searchQuery) {
