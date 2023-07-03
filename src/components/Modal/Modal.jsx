@@ -9,17 +9,17 @@ const modalRoot = document.querySelector('#modal-root');
 
 const Modal = ({ largeImage, description, children, onClose }) => {
   useEffect(() => {
+    const handleKeyDownEscape = e => {
+      if (e.code === 'Escape') {
+        onClose();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDownEscape);
     return () => {
       window.removeEventListener('keydown', handleKeyDownEscape);
     };
   });
-
-  const handleKeyDownEscape = e => {
-    if (e.code === 'Escape') {
-      onClose();
-    }
-  };
 
   const handleBackdropClick = e => {
     if (e.currentTarget === e.target) {
