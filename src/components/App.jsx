@@ -18,10 +18,6 @@ const App = () => {
   const [gallery, setGallery] = useState([]);
 
   useEffect(() => {
-    if (currentPage === totalPages) {
-      toast.info(`This is the last page`);
-    }
-
     if (searchQuery) {
       const doRequest = async () => {
         setIsLoading(true);
@@ -30,12 +26,16 @@ const App = () => {
           const responseData = await Api.getData(searchQuery, currentPage);
           const newGallery = responseData.hits;
 
-          setGallery([...gallery, ...newGallery]);
+          setGallery(gallery => [...gallery, ...newGallery]);
 
           if (currentPage === 1) {
             const imagesPerPage = newGallery.length;
             const totalImages = responseData.total;
             const totalPages = Math.ceil(totalImages / imagesPerPage);
+
+            if (currentPage === totalPages) {
+              toast.info(`This is the last page`);
+            }
 
             if (newGallery.length === 0) {
               toast.error(`No images found for your request!`);
