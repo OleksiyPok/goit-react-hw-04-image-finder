@@ -9,6 +9,7 @@ import Button from 'components/Button';
 import Loader from 'components/Loader';
 
 import { AppContainer } from './App.styled';
+import { useCallback } from 'react';
 
 const App = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,46 +18,42 @@ const App = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [gallery, setGallery] = useState([]);
 
-  useEffect(() => {
-    if (searchQuery) {
-      const doRequest = async () => {
-        setIsLoading(true);
+  const getPhotos = useCallback(async (searchQuery, currentPage) => {
+    setIsLoading(true);
 
-        try {
-          const responseData = await Api.getData(searchQuery, currentPage);
-          const newGallery = responseData.hits;
+    try {
+      const responseData = await Api.getData(searchQuery, currentPage);
+      const newGallery = responseData.hits;
 
-          setGallery(gallery => [...gallery, ...newGallery]);
+      setGallery(gallery => [...gallery, ...newGallery]);
 
-          if (currentPage === 1) {
-            const imagesPerPage = newGallery.length;
-            const totalImages = responseData.total;
-            const totalPages = Math.ceil(totalImages / imagesPerPage);
+      if (currentPage === 1) {
+        const imagesPerPage = newGallery.length;
+        const totalImages = responseData.total;
+        const totalPages = Math.ceil(totalImages / imagesPerPage);
 
-            if (currentPage === totalPages) {
-              toast.info(`This is the last page`);
-            }
-
-            if (newGallery.length === 0) {
-              toast.error(`No images found for your request!`);
-            } else {
-              toast.success(
-                `Found ${totalImages} images matching your request`
-              );
-            }
-
-            setTotalPages(totalPages);
-          }
-        } catch (error) {
-          return console.log(error.message);
-        } finally {
-          setIsLoading(false);
+        if (currentPage === totalPages) {
+          toast.info(`This is the last page`);
         }
-      };
 
-      doRequest();
+        if (newGallery.length === 0) {
+          toast.error(`No images found for your request!`);
+        } else {
+          toast.success(`Found ${totalImages} images matching your request`);
+        }
+
+        setTotalPages(totalPages);
+      }
+    } catch (error) {
+      return console.log(error.message);
+    } finally {
+      setIsLoading(false);
     }
-  }, [searchQuery, currentPage]);
+  }, []);
+
+  useEffect(() => {
+    getPhotos(searchQuery, currentPage);
+  }, [searchQuery, currentPage, getPhotos]);
 
   const handleOnSearch = currentSearchQuery => {
     if (currentSearchQuery !== searchQuery) {

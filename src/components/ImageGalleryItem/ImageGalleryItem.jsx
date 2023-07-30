@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import Modal from 'components/Modal';
 
-import { Li, Img } from './ImageGalleryItem.styled';
+import { LiStyled, ImgStyled } from './ImageGalleryItem.styled';
 
 const ImageGalleryItem = ({ webImage, description, largeImage }) => {
   const [showModal, setShowModal] = useState(false);
@@ -13,16 +13,16 @@ const ImageGalleryItem = ({ webImage, description, largeImage }) => {
   };
 
   return (
-    <Li className="gallery-item">
+    <LiStyled className="gallery-item">
       {showModal && (
         <Modal
           onClose={toggleModal}
           largeImage={largeImage}
           description={description}
-        ></Modal>
+        />
       )}
-      <Img src={webImage} alt={description} onClick={toggleModal} />
-    </Li>
+      <ImgStyled src={webImage} alt={description} onClick={toggleModal} />
+    </LiStyled>
   );
 };
 
